@@ -24,10 +24,18 @@
 
 			Event::fake();
 
-			$client    = $this->getMockBuilder(SesClient::class)
-				->addMethods(['sendRawEmail'])
-				->disableOriginalConstructor()
-				->getMock();
+			$builder = $this->getMockBuilder(SesClient::class);
+			if (method_exists($builder, 'addMethods')) {
+				$client = $builder->addMethods(['sendRawEmail'])
+					->disableOriginalConstructor()
+					->getMock();
+			}
+			else {
+				$client = $builder->setMethods(['sendRawEmail'])
+					->disableOriginalConstructor()
+					->getMock();
+			}
+
 			$transport = new SesExtTransport($client, Event::getFacadeRoot());
 
 			// Generate a messageId for our mock to return to ensure that the post-sent message
