@@ -1,4 +1,7 @@
 # lara-ses-ext
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mehr-it/lara-ses-ext.svg?style=flat-square)](https://packagist.org/packages/mehr-it/lara-ses-ext)
+[![Build Status](https://travis-ci.org/mehr-it/lara-ses-ext.svg?branch=master)](https://travis-ci.org/mehr-it/lara-ses-ext)
+
 This package implements an extended driver for sending mails via AWS SES in Laravel. It dispatches
 a custom event on dispatch containing an exact copy of the passed message for archiving purposes.
 
