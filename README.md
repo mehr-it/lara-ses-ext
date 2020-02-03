@@ -5,8 +5,8 @@
 This package implements an extended driver for sending mails via AWS SES in Laravel. It dispatches
 a custom event on dispatch containing an exact copy of the passed message for archiving purposes.
 
-Additionally a helper exists which transforms SNS messages published by SES to inform about the 
-delivery status to Laravel events.
+Additionally a helper exists which transforms status notifications published by SES to 
+Laravel events.
 
 ## Install
 
