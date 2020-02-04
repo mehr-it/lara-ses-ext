@@ -5,6 +5,7 @@
 
 
 	use Illuminate\Support\Facades\Event;
+	use InvalidArgumentException;
 	use MehrIt\LaraSesExt\Events\SesMessageBounced;
 	use MehrIt\LaraSesExt\Events\SesMessageComplained;
 	use MehrIt\LaraSesExt\Events\SesMessageDelivered;
@@ -287,7 +288,7 @@
 
 
 
-	public function testUnknownNotification() {
+		public function testUnknownNotification() {
 
 			$body = '   {
        "notificationType":"Unknown",
@@ -352,6 +353,22 @@
 			$handler = new SesNotificationHandler(Event::getFacadeRoot());
 
 			$this->expectException(UnknownSesNotificationTypeException::class);
+
+			$handler->handle($body);
+
+
+		}
+
+
+		public function testInvalidJson() {
+
+			$body = 'this is not json';
+
+			Event::fake();
+
+			$handler = new SesNotificationHandler(Event::getFacadeRoot());
+
+			$this->expectException(InvalidArgumentException::class);
 
 			$handler->handle($body);
 

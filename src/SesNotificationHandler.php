@@ -38,6 +38,16 @@
 		 */
 		public function handle(string $body): void {
 
+			$this->dispatcher->dispatch($this->resolve($body));
+		}
+
+		/**
+		 * Resolves the event for the given SES notification
+		 * @param string $body The SES notification as string
+		 * @return SesMessageBounced|SesMessageComplained|SesMessageDelivered The event
+		 * @throws UnknownSesNotificationTypeException
+		 */
+		public function resolve(string $body) {
 			// decode data
 			$data = json_decode($body, true);
 			if (JSON_ERROR_NONE !== json_last_error())
@@ -45,23 +55,19 @@
 
 			// dispatch event
 			$type = $data['notificationType'] ?? null;
-			switch($type) {
+			switch ($type) {
 				case 'Bounce':
-					$this->dispatcher->dispatch(new SesMessageBounced((array)($data['mail'] ?? []), (array)($data['bounce'] ?? [])));
-					break;
+					return new SesMessageBounced((array)($data['mail'] ?? []), (array)($data['bounce'] ?? []));
 
 				case 'Complaint':
-					$this->dispatcher->dispatch(new SesMessageComplained((array)($data['mail'] ?? []), (array)($data['complaint'] ?? [])));
-					break;
+					return new SesMessageComplained((array)($data['mail'] ?? []), (array)($data['complaint'] ?? []));
 
 				case 'Delivery':
-					$this->dispatcher->dispatch(new SesMessageDelivered((array)($data['mail'] ?? []), (array)($data['delivery'] ?? [])));
-					break;
+					return new SesMessageDelivered((array)($data['mail'] ?? []), (array)($data['delivery'] ?? []));
 
 				default:
 					throw new UnknownSesNotificationTypeException("Unknown SES notification type \"$type\".");
 			}
-
 		}
 
 	}
