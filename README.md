@@ -26,18 +26,48 @@ that your `config/services.php` configuration file contains the following option
         'region' => 'ses-region',  // e.g. us-east-1
     ],
     
-## Dispatch event
+## Dispatched event
 The `SesMessageDispatched` event is dispatched by the driver right after the message has been
 passed to SES. It contains the message id assigned by SES and a copy of the raw message data
 which has been passed.
 
 You can use this information to a archive an exact copy of each sent message.
 
+### Adding custom information
+Sometimes it might be helpful to have additional information about the sent message, when receiving
+the dispatched event. For example if the user ID of the recipient should be stored to the mail
+archive.
+
+With the `ses-ext` driver, this can be achieved by using the `InternalMailHeaders` trait in 
+mailables and invoking the `withInternalHeader` method from within the `build` function:
+
+    use InternalMailHeaders;
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        $this->view('emails.orders.shipped');
+    
+        $this->withInternalHeader('user-id', $userId);
+    }
+
+The internal headers are not sent to SES, but are removed right before sending the message.
+    
+When handling the `SesMessageDispatched` event, it is simple to retrieve the internal header
+values again:
+
+    $userId = $event->getInternalHeaderValue('user-id');
+
 ## SES notifications
 AWS SES offers notifications to monitor the sending activity. A notification can be received for
 bounces, complaints and deliveries. To receive notifications, SES has to be configured to sent
 them to an SNS topic. SNS then can pass the notifications to your application, eg. via webhook
-or a SQS queue. For further information, see the [documentation](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/monitor-sending-activity-using-notifications.html).
+or a SQS queue. For further information, see the 
+[AWS SES documentation](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/monitor-sending-activity-using-notifications.html).
 
 The receiving of SNS notifications is not in the scope of this library, but the
 `SesNotificationHandler` class helps to convert received SES notifications into Laravel events. 
