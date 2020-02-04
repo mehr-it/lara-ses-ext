@@ -27,15 +27,43 @@
 		protected $internalHeaders;
 
 		/**
+		 * @var string
+		 */
+		protected $senderAddress;
+
+		/**
+		 * @var string
+		 */
+		protected $mailFromAddress;
+
+		/**
+		 * @var string
+		 */
+		protected $mailToAddress;
+
+		/**
+		 * @var string
+		 */
+		protected $subject;
+
+		/**
 		 * Creates a new instance
 		 * @param string $message The message as string
 		 * @param string $sesMessageId The SES message id
+		 * @param string $senderAddress The sender address
+		 * @param string $mailFromAddress The mail from address
+		 * @param string $mailToAddress The mail to address
+		 * @param string $subject The subject
 		 * @param array $internalHeaders The internal header values
 		 */
-		public function __construct(string $message, string $sesMessageId, array $internalHeaders = []) {
-			$this->message      = $message;
-			$this->sesMessageId = $sesMessageId;
+		public function __construct(string $message, string $sesMessageId, string $senderAddress, string $mailFromAddress, string $mailToAddress, $subject, array $internalHeaders = []) {
+			$this->message         = $message;
+			$this->sesMessageId    = $sesMessageId;
 			$this->internalHeaders = $internalHeaders;
+			$this->mailFromAddress = $mailFromAddress;
+			$this->mailToAddress   = $mailToAddress;
+			$this->subject         = $subject;
+			$this->senderAddress   = $senderAddress;
 		}
 
 		/**
@@ -70,6 +98,41 @@
 		public function getInternalHeaderValue(string $name): ?string {
 			return $this->internalHeaders[Str::lower($name)] ?? null;
 		}
+
+		/**
+		 * Gets the (first) mail from address
+		 * @return string The (first) mail from address
+		 */
+		public function getMailFromAddress(): string {
+			return $this->mailFromAddress;
+		}
+
+		/**
+		 * Gets the (first) mail to address
+		 * @return string The (first) mail to address
+		 */
+		public function getMailToAddress(): string {
+			return $this->mailToAddress;
+		}
+
+		/**
+		 * Gets the subject
+		 * @return string The subject
+		 */
+		public function getSubject(): string {
+			return $this->subject;
+		}
+
+		/**
+		 * Gets the sender address
+		 * @return string The sender address
+		 */
+		public function getSenderAddress(): string {
+			return $this->senderAddress;
+		}
+
+
+
 
 
 	}

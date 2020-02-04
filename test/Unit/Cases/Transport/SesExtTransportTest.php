@@ -56,6 +56,66 @@
 
 			Event::assertDispatched(SesMessageDispatched::class, function (SesMessageDispatched $event) use ($messageBody, $messageId) {
 
+				$this->assertSame('myself@example.com', $event->getSenderAddress());
+				$this->assertSame('', $event->getMailFromAddress());
+				$this->assertSame('me@example.com', $event->getMailToAddress());
+				$this->assertSame('Foo subject', $event->getSubject());
+
+				$this->assertSame($messageId, $event->getSesMessageId());
+				$this->assertSame($messageBody, $event->getMessage());
+
+				return true;
+			});
+		}
+
+		public function testSend_withNamedAndMultipleAddress() {
+			$message = new Swift_Message('Foo subject', 'Bar body');
+			$message->setSender('myself@example.com', 'My name');
+			$message->setTo(['me@example.com' => 'My name', 'you@example.com' => 'Your name', 'other@example.com']);
+			$message->setFrom(['meAndYou@example.com' => 'My name']);
+			$message->setBcc('you@example.com');
+
+			$messageBody = $message->toString();
+
+			Event::fake();
+
+			$builder = $this->getMockBuilder(SesClient::class);
+			if (method_exists($builder, 'addMethods')) {
+				$client = $builder->addMethods(['sendRawEmail'])
+					->disableOriginalConstructor()
+					->getMock();
+			}
+			else {
+				$client = $builder->setMethods(['sendRawEmail'])
+					->disableOriginalConstructor()
+					->getMock();
+			}
+
+			$transport = new SesExtTransport($client, Event::getFacadeRoot());
+
+			// Generate a messageId for our mock to return to ensure that the post-sent message
+			// has X-SES-Message-ID in its headers
+			$messageId        = Str::random(32);
+			$sendRawEmailMock = new sendRawEmailMock($messageId);
+			$client->expects($this->once())
+				->method('sendRawEmail')
+				->with($this->equalTo([
+					'Source'     => 'myself@example.com',
+					'RawMessage' => ['Data' => (string)$message],
+				]))
+				->willReturn($sendRawEmailMock);
+
+			$transport->send($message);
+			$this->assertEquals($messageId, $message->getHeaders()->get('X-SES-Message-ID')->getFieldBody());
+
+
+			Event::assertDispatched(SesMessageDispatched::class, function (SesMessageDispatched $event) use ($messageBody, $messageId) {
+
+				$this->assertSame('myself@example.com', $event->getSenderAddress());
+				$this->assertSame('meAndYou@example.com', $event->getMailFromAddress());
+				$this->assertSame('me@example.com', $event->getMailToAddress());
+				$this->assertSame('Foo subject', $event->getSubject());
+
 				$this->assertSame($messageId, $event->getSesMessageId());
 				$this->assertSame($messageBody, $event->getMessage());
 
@@ -113,6 +173,10 @@
 
 				$this->assertSame($messageId, $event->getSesMessageId());
 				$this->assertSame($messageBody, $event->getMessage());
+				$this->assertSame('myself@example.com', $event->getSenderAddress());
+				$this->assertSame('', $event->getMailFromAddress());
+				$this->assertSame('me@example.com', $event->getMailToAddress());
+				$this->assertSame('Foo subject', $event->getSubject());
 
 				$internalHeaders = $event->getInternalHeaders();
 				$this->assertSame('v1', $internalHeaders['my-header']);

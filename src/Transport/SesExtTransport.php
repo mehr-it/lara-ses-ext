@@ -57,8 +57,12 @@
 
 			$this->sendPerformed($message);
 
-			// dispatch sent event
-			$this->events->dispatch(new SesMessageDispatched($rawMessage, $sesMessageId, $internalHeaders));
+			// dispatch event
+			$sender   = $this->getFirstAddress($message->getSender());
+			$mailFrom = $this->getFirstAddress($message->getFrom());
+			$mailTo   = $this->getFirstAddress($message->getTo());
+			$subject  = $message->getSubject();
+			$this->events->dispatch(new SesMessageDispatched($rawMessage, $sesMessageId, $sender, $mailFrom, $mailTo, $subject, $internalHeaders));
 
 			return $this->numberOfRecipients($message);
 		}
@@ -89,6 +93,25 @@
 			}
 
 			return $internalHeaderValues;
+		}
+
+		/**
+		 * Gets the first address fom given mailbox header model
+		 * @param array|null|string $addresses The addresses
+		 * @return string The first email address
+		 */
+		protected function getFirstAddress($addresses) {
+
+			if (is_string($addresses))
+				return $addresses;
+			if (!$addresses)
+				return '';
+
+			foreach ($addresses as $key => $value) {
+				return is_string($key) ? $key : $value;
+			}
+
+			return '';
 		}
 
 	}
