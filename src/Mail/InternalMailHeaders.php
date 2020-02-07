@@ -15,6 +15,7 @@
 		 * Adds the given internal header to the swift message
 		 * @param string $name The header name
 		 * @param string $value The header value
+		 * @return InternalMailHeaders
 		 */
 		protected function withInternalHeader(string $name, string $value) {
 
@@ -23,6 +24,7 @@
 				$message->getHeaders()->addTextHeader(SesExtTransport::INTERNAL_HEADER_PREFIX . $name, $value);
 			});
 
+			return $this;
 		}
 
 	}

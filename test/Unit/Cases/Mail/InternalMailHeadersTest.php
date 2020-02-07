@@ -21,7 +21,7 @@
 
 			$mailable = new InternalMailHeadersTestMailable();
 
-			$mailable->build();
+			$this->assertSame($mailable, $mailable->build());
 
 			$mailable->doRunCallbacks(new Message($swiftMessage));
 
@@ -46,9 +46,8 @@
 		public function build() {
 
 			$this->withInternalHeader('my-header', 'my-value-1');
-			$this->withInternalHeader('your-header', 'your-value');
 
-			return $this;
+			return $this->withInternalHeader('your-header', 'your-value');
 		}
 
 		/**
