@@ -29,4 +29,13 @@
 
 		}
 
+		public function testSesExtSimulationDriverRegistered() {
+
+			/** @var TransportManager $manager */
+			$manager = app('swift.transport');
+
+			$this->assertInstanceOf(SesExtTransport::class, $manager->driver('ses-ext-simulation'));
+
+		}
+
 	}

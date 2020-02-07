@@ -87,3 +87,8 @@ event dispatcher. One of the following events is dispatched based on the notific
 The events' getters provide access to all notification information given by SES.
 
 
+## Test driver
+When testing your application with other mail drivers, such as array drivers, the `SesMessageDispatched` 
+event is not emitted. If tests rely on that events, the `"ses-ext-simulation"` driver can be used. It
+behaves exactly like the `"ses-ext"` driver but does not invoke the SES API. Instead a random message id
+is generated and returned.

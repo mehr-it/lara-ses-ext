@@ -21,6 +21,7 @@
 			/** @var TransportManager $manager */
 			$manager = $this->app['swift.transport'];
 
+			// register driver
 			$manager->extend('ses-ext', function () {
 				$config = array_merge(
 					$this->app->make('config')->get('services.ses', []),
@@ -35,6 +36,21 @@
 
 				return new SesExtTransport(
 					new SesClient($config),
+					$this->app->make('events'),
+					$config['options'] ?? []
+				);
+			});
+
+			// register dummy driver
+			$manager->extend('ses-ext-simulation', function () {
+
+				return new SesExtTransport(
+					new SesClient([
+						// this are just the required options to allow creating a instance (it is never used)
+						'version' => 'latest',
+						'service' => 'email',
+						'region'  => 'eu-central-1',
+					]),
 					$this->app->make('events'),
 					$config['options'] ?? []
 				);

@@ -41,17 +41,7 @@
 
 			$rawMessage = $message->toString();
 
-			$result = $this->ses->sendRawEmail(
-				array_merge(
-					$this->options, [
-						'Source'     => key($message->getSender() ?: $message->getFrom()),
-						'RawMessage' => [
-							'Data' => $rawMessage,
-						],
-					]
-				)
-			);
-			$sesMessageId = $result->get('MessageId');
+			$sesMessageId = $this->sendToSes(key($message->getSender() ?: $message->getFrom()), $rawMessage);
 
 			$message->getHeaders()->addTextHeader('X-SES-Message-ID', $sesMessageId);
 
@@ -65,6 +55,27 @@
 			$this->events->dispatch(new SesMessageDispatched($rawMessage, $sesMessageId, $sender, $mailFrom, $mailTo, $subject, $internalHeaders));
 
 			return $this->numberOfRecipients($message);
+		}
+
+		/**
+		 * Sets the email to SES
+		 * @param string $source The sender address
+		 * @param string $rawMessage The raw message
+		 * @return string|null the SES message id
+		 */
+		protected function sendToSes(string $source, string $rawMessage): ?string {
+			$result = $this->ses->sendRawEmail(
+				array_merge(
+					$this->options, [
+						'Source'     => $source,
+						'RawMessage' => [
+							'Data' => $rawMessage,
+						],
+					]
+				)
+			);
+
+			return $result->get('MessageId');
 		}
 
 		/**
