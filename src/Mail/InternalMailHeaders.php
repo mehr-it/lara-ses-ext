@@ -15,9 +15,9 @@
 		 * Adds the given internal header to the swift message
 		 * @param string $name The header name
 		 * @param string $value The header value
-		 * @return InternalMailHeaders
+		 * @return $this
 		 */
-		protected function withInternalHeader(string $name, string $value) {
+		public function withInternalHeader(string $name, string $value) {
 
 			$this->withSwiftMessage(function($message) use ($name, $value) {
 				/** @var Swift_Mime_SimpleMessage $message */
