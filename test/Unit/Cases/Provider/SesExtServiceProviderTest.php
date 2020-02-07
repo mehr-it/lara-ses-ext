@@ -6,6 +6,7 @@
 
 	use Illuminate\Mail\TransportManager;
 	use MehrIt\LaraSesExt\SesNotificationHandler;
+	use MehrIt\LaraSesExt\Transport\SesExtSimulationTransport;
 	use MehrIt\LaraSesExt\Transport\SesExtTransport;
 	use MehrItLaraSesExtTest\Unit\Cases\TestCase;
 
@@ -34,7 +35,7 @@
 			/** @var TransportManager $manager */
 			$manager = app('swift.transport');
 
-			$this->assertInstanceOf(SesExtTransport::class, $manager->driver('ses-ext-simulation'));
+			$this->assertInstanceOf(SesExtSimulationTransport::class, $manager->driver('ses-ext-simulation'));
 
 		}
 

@@ -9,6 +9,7 @@
 	use Illuminate\Support\Arr;
 	use Illuminate\Support\ServiceProvider;
 	use MehrIt\LaraSesExt\SesNotificationHandler;
+	use MehrIt\LaraSesExt\Transport\SesExtSimulationTransport;
 	use MehrIt\LaraSesExt\Transport\SesExtTransport;
 
 	class SesExtServiceProvider extends ServiceProvider
@@ -44,7 +45,7 @@
 			// register dummy driver
 			$manager->extend('ses-ext-simulation', function () {
 
-				return new SesExtTransport(
+				return new SesExtSimulationTransport(
 					new SesClient([
 						// this are just the required options to allow creating a instance (it is never used)
 						'version' => 'latest',
