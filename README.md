@@ -16,9 +16,16 @@ This package uses Laravel's package auto-discovery, so the service provider will
 automatically.
 
 
-## Driver configuration
-Set the driver option in your `config/mail.php` configuration file to `"ses-ext"` and verify
-that your `config/services.php` configuration file contains the following options:
+## Mailer configuration
+Set the transport option of your mailer in `config/mail.php` configuration file to `"ses-ext"`:
+
+    'mailers' => [
+        'ses' => [
+            'transport' => 'ses-ext',
+        ]
+    ]
+
+Verify  that your `config/services.php` configuration file contains the following options:
 
 	'ses' => [
         'key'    => 'your-ses-key',

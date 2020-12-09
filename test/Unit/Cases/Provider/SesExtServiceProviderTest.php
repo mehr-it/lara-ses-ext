@@ -4,7 +4,7 @@
 	namespace MehrItLaraSesExtTest\Unit\Cases\Provider;
 
 
-	use Illuminate\Mail\TransportManager;
+	use Illuminate\Mail\MailManager;
 	use MehrIt\LaraSesExt\SesNotificationHandler;
 	use MehrIt\LaraSesExt\Transport\SesExtSimulationTransport;
 	use MehrIt\LaraSesExt\Transport\SesExtTransport;
@@ -12,6 +12,24 @@
 
 	class SesExtServiceProviderTest extends TestCase
 	{
+		/**
+		 * @inheritDoc
+		 */
+		protected function getEnvironmentSetUp($app) {
+
+			$app['config']->set('mail.mailers.ses-ext-mailer', ['transport' => 'ses-ext']);
+			$app['config']->set('mail.mailers.ses-ext-simulation-mailer', ['transport' => 'ses-ext-simulation']);
+		}
+
+		protected function useSesExtMailer($app) {
+			$app['config']->set('mail.default', 'ses-ext-mailer');
+
+		}
+
+		protected function useSesSimulationExtMailer($app) {
+			$app['config']->set('mail.default', 'ses-ext-simulation-mailer');
+
+		}
 
 		public function testSesNotificationHandlerRegistration() {
 
@@ -21,21 +39,27 @@
 
 		}
 
-		public function testSesExtDriverRegistered() {
+		/**
+		 * @environment-setup useSesExtMailer
+		 */
+		public function testSesExtTransportRegistered() {
 
-			/** @var TransportManager $manager */
-			$manager = app('swift.transport');
+			/** @var MailManager $manager */
+			$manager = app('mail.manager');
 
-			$this->assertInstanceOf(SesExtTransport::class, $manager->driver('ses-ext'));
+			$this->assertInstanceOf(SesExtTransport::class, $manager->getSwiftMailer()->getTransport());
 
 		}
 
-		public function testSesExtSimulationDriverRegistered() {
+		/**
+		 * @environment-setup useSesSimulationExtMailer
+		 */
+		public function testSesExtSimulationTransportRegistered() {
 
-			/** @var TransportManager $manager */
-			$manager = app('swift.transport');
+			/** @var MailManager $manager */
+			$manager = app('mail.manager');
 
-			$this->assertInstanceOf(SesExtSimulationTransport::class, $manager->driver('ses-ext-simulation'));
+			$this->assertInstanceOf(SesExtSimulationTransport::class, $manager->getSwiftMailer()->getTransport());
 
 		}
 

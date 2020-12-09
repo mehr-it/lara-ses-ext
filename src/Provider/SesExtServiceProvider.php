@@ -5,7 +5,7 @@
 
 
 	use Aws\Ses\SesClient;
-	use Illuminate\Mail\TransportManager;
+	use Illuminate\Mail\MailManager;
 	use Illuminate\Support\Arr;
 	use Illuminate\Support\ServiceProvider;
 	use MehrIt\LaraSesExt\SesNotificationHandler;
@@ -19,8 +19,8 @@
 		];
 
 		public function boot() {
-			/** @var TransportManager $manager */
-			$manager = $this->app['swift.transport'];
+			/** @var MailManager $manager */
+			$manager = $this->app['mail.manager'];
 
 			// register driver
 			$manager->extend('ses-ext', function () {
